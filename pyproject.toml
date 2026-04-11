@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "gear-second"
+version = "0.1.0"
+description = "P51 Brain governed failover mode — terminal-first launcher and router"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+gear-second = "gear_second.cli:main"
+gearsecond = "gear_second.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gear_second*"]
