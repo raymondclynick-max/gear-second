@@ -1,6 +1,8 @@
 """
-context_loader.py — Phase 1
+context_loader.py — Phase 1–5
 Detects repo root, git branch, venture name, and loads governance files.
+Graceful degradation: continues with conservative defaults if governance
+files or git are missing.
 """
 from pathlib import Path
 import subprocess
@@ -46,7 +48,8 @@ def _run(cmd: list[str], cwd: Optional[str] = None) -> Optional[str]:
         if result.returncode == 0:
             return result.stdout.strip()
         return None
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        # git not installed or timeout — graceful degradation
         return None
 
 
@@ -109,10 +112,13 @@ def load_governance(venture: Optional[str] = None) -> GovernanceInfo:
                 break
         venture_path = BRAIN_DIR / "ventures" / venture_slug / "CLAUDE.md"
         if venture_path.exists():
-            # Load first 200 lines only (can be very large)
-            lines = venture_path.read_text(encoding="utf-8").splitlines()
-            gov.venture_claude_md = "\n".join(lines[:200])
-            gov.sources_loaded.append(str(venture_path))
+            try:
+                # Load first 200 lines only (can be very large)
+                lines = venture_path.read_text(encoding="utf-8", errors="replace").splitlines()
+                gov.venture_claude_md = "\n".join(lines[:200])
+                gov.sources_loaded.append(str(venture_path))
+            except OSError:
+                missing.append(f"ventures/{venture_slug}/CLAUDE.md (read error)")
         else:
             missing.append(f"ventures/{venture_slug}/CLAUDE.md")
 
