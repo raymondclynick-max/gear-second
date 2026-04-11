@@ -104,7 +104,9 @@ def cmd_start(ctx: RepoContext, mode: str) -> int:
     from gear_second.backend import select_mode, mode_summary, mode_a_ready
     from gear_second.session import create_session
     from gear_second.logger import log_event
-    from gear_second.ollama_adapter import launch_claude_via_ollama, OLLAMA_HOST
+    from gear_second.ollama_adapter import (
+        launch_claude_via_ollama, OLLAMA_HOST, LITELLM_BASE_URL
+    )
 
     ui.header()
     ui.section("Starting Session")
@@ -134,10 +136,12 @@ def cmd_start(ctx: RepoContext, mode: str) -> int:
             ui.warn(f"Missing governance: {m}")
 
     if resolved_mode == "claude-ollama":
-        ui.section("Mode A — Launching Claude Code via Ollama")
+        ui.section("Mode A — Launching Claude Code via LiteLLM → Ollama")
         ui.row("Ollama host", OLLAMA_HOST)
         ui.row("Model", ollama_status.model_name)
-        ui.row("ANTHROPIC_BASE_URL", f"{OLLAMA_HOST}/v1")
+        ui.row("LiteLLM proxy", LITELLM_BASE_URL)
+        ui.row("ANTHROPIC_BASE_URL", LITELLM_BASE_URL)
+        ui.row("ANTHROPIC_API_KEY", "dummy")
         print()
         log_event(session_dir, "mode_selected", "claude-ollama")
         try:
