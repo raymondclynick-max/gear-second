@@ -1,3 +1,3 @@
 # Gear Second Phase 1 — no runtime dependencies beyond stdlib
 # Phase 2+ will add: requests (ollama API), rich (optional TUI)
-pytest>=8.0.0
+pytest>=9.1.1
